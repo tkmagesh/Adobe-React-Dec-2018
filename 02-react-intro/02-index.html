@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>React Intro</title>
+	<script src="react.development.js"></script>
+	<script src="react-dom.development.js"></script>
+	<script>
+		(function(){
+			window.addEventListener('DOMContentLoaded', init);
+
+			function init(){
+				var btnRender = document.getElementById('btnRender');
+				btnRender.addEventListener('click', onBtnRenderClick);
+			}
+			var counter = 0;
+			function onBtnRenderClick(){
+				var appEle = React.createElement('div', null, 
+					React.createElement('h1', null, 'React.js Intro'),
+					React.createElement('hr', null, null),
+					React.createElement('div', null,
+						React.createElement('p', null, 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit doloribus odio maxime unde debitis laudantium, voluptas eius quidem excepturi dolores! Dolorem fugiat nihil unde sunt praesentium amet, magni porro animi!Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo dignissimos voluptas nemo illo error! Assumenda natus optio quas similique deleniti aliquid unde ipsa, fugiat pariatur debitis ipsam molestias repudiandae a.'),
+						React.createElement('p', null, 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus distinctio libero tempore, enim aperiam dicta soluta voluptatem officia temporibus, consequatur id reiciendis repudiandae sint a veritatis quos assumenda fuga quia.Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas tempora doloremque animi praesentium fuga ratione impedit minus voluptatem aut sapiente architecto, hic porro, iste maiores suscipit ea ipsum harum recusandae.')
+					),
+					React.createElement('div', null, 
+						React.createElement('h3', null, 'Counter - ' + ++counter)
+					),
+					React.createElement('div', null, 
+						React.createElement('h2', null, 'Advantages'),
+						React.createElement('hr', null, null),
+						React.createElement('ol', null, 
+							React.createElement('li', null, 'Declarative'),
+							React.createElement('li', null, 'Efficient'),
+						),
+					)
+				);
+
+				ReactDOM.render(appEle, document.getElementById('root'));
+			}
+		})();
+	</script>
+</head>
+<body>
+	<input type="button" value="Render" id="btnRender"/>
+	<div id="counter"></div>
+	<div id="root"></div>
+</body>
+</html>
