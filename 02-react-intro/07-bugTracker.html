@@ -92,7 +92,8 @@
 
 		class BugItem extends React.Component{
 			onBugNameClick = () => {
-				console.log(this.props.bug, 'is to be toggled');
+				this.props.bug.isClosed = !this.props.bug.isClosed;
+				console.log(this.props.bug);
 			}
 			render(){
 				let { bug } = this.props;
