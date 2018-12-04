@@ -7,30 +7,75 @@
 	<script src="react-dom.development.js"></script>
 	<script src="babel.min.js"></script>
 	<script type="text/babel">
-		class Products extends React.Component{
-			render(){
-				let products = [
-					'Pen',
-					'Pencil',
-					'Marker'
-				];
-				/*let productItems = [];
-				for(let index = 0, count = products.length; index < count; index++){
-					let productItem = (<li key={index}>{products[index]}</li>);
-					productItems.push(productItem);
-				}*/
+		class EventEmitter{
+			_subscribers = [];
 
+			subscribe(callback){
+				if (typeof callback === 'function')
+					this._subscribers.push(callback);
+			}
+
+			triggerChange(){
+				this._subscribers.forEach(subscriber => subscriber());
+			}
+		}
+
+		class ProductsModel extends EventEmitter{
+			_list = [];
+
+			addNew(productName){
+				this._list.push(productName);
+				this.triggerChange();
+			}
+			getAll(){
+				return [...this._list];
+			}
+		}
+
+		class Products extends React.Component{
+			txtProductNameRef = React.createRef();
+
+			state = { newProductName : ''};
+			render(){
+				let { model } = this.props;
+				let products = model.getAll();
 				let productItems = products.map((product, index) => (<li key={index}>{product}</li>));
-				
+
 				return(
-					<ol>
-						{productItems}
-					</ol>
+					<div>
+						<label>Product Name :</label>
+						<input type="text" onChange={evt => this.setState({newProductName : evt.target.value})} />
+						<span> [ {this.state.newProductName.length} ] </span>
+						<input type="button" value="Add New" onClick={() => model.addNew(this.state.newProductName)}/>
+						<ol>
+							{productItems}
+						</ol>
+					</div>
 				);
 			}
 		}
-		ReactDOM.render(<Products />,
-			document.getElementById('root'));
+
+		class ProductsCount extends React.Component{
+
+			render(){
+				return(
+					<div>Count : {this.props.data}</div>
+				);
+			}
+		}
+
+		var model = new ProductsModel();
+		function renderProducts(){
+			let count = model.getAll().length;
+			ReactDOM.render(
+				<div>
+					<ProductsCount data={count}/>
+					<Products model={model}/>
+				</div>
+				,
+				document.getElementById('root'));
+		}renderProducts();
+		model.subscribe(renderProducts);
 	</script>
 </head>
 <body>
