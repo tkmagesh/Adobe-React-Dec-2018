@@ -52,6 +52,7 @@
 	<script src="react-dom.development.js"></script>
 	<script src="babel.min.js"></script>
 	<script src="redux.js"></script>
+	<script src="react-redux.min.js"></script>
 	<script type="text/babel">
 		
 
@@ -219,16 +220,32 @@
 
 		{/* Store */}
 		let store = Redux.createStore(rootReducer);
-		
+
+
+		function mapStateToBugTrackerProps(storeState){
+			let bugsModel = storeState.bugsData;
+			return { model : bugsModel };
+		}
+
+		function mapDispatchToBugTrackerProps(dispatch){
+			let bugActions = Redux.bindActionCreators(bugActionCreators, dispatch);	
+			return bugActions;
+		}
+
+		let ConnectedBugTracker = ReactRedux.connect(
+				mapStateToBugTrackerProps,
+				mapDispatchToBugTrackerProps
+			)(BugTracker)
+
 		{/* Binding Action Creators*/}
-		let bugActions = Redux.bindActionCreators(bugActionCreators, store.dispatch);
+		
 		var spinnerActions = Redux.bindActionCreators(spinnerActionCreator, store.dispatch);
 
 
 		function renderApp(){
 			/* Extracting state from the store*/
 			let storeState = store.getState();
-			let bugsModel = storeState.bugsData;
+			
 			var spinnerValue = storeState.spinnerData;
 			/* Rendering the UI*/
 			ReactDOM.render(
