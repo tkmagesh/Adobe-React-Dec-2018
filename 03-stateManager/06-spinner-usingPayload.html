@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Spinner</title>
+	<script src="react.development.js"></script>
+	<script src="react-dom.development.js"></script>
+	<script src="babel.min.js"></script>
+	<script src="stateManager.js"></script>
+	<script type="text/babel">
+		function spinnerReducer(currentState = 0, action){
+			if (action.type === 'UP') return currentState + action.payload;
+			if (action.type === 'DOWN') return currentState - action.payload;
+			return currentState;
+		}
+
+		var store = SM.createStore(spinnerReducer)
+		
+		class Spinner extends React.Component{
+			state = {deltaValue : 0};
+			render(){
+				let {up, down, value} = this.props;
+				return(
+					<div>
+						<input type="number" value={this.state.deltaValue} onChange={evt => this.setState({deltaValue : evt.target.valueAsNumber})}/>
+						<input type="button" value="DOWN" onClick={() => down(this.state.deltaValue)}/>
+						<span> [ { value } ] </span>
+						<input type="button" value="UP" onClick={() => up(this.state.deltaValue)}/>
+					</div>
+				);
+			}
+		};
+		
+		var spinnerActionCreator = {
+			down(delta = 1){
+				var action = { type : 'DOWN', payload : delta };
+				return action;
+			},
+			up(delta = 1){
+				var action = { type : 'UP', payload : delta };
+				return action;
+			}
+		}
+
+		{/*function bindSpinnerActionCreators(actionCreator, dispatch){
+			let result = {};
+			for(let key in actionCreator){
+				result[key] = function(){
+					var action = actionCreator[key].apply(undefined, arguments);
+					dispatch(action);
+				}
+			}
+			return result;
+		}
+
+		var spinnerActions = bindSpinnerActionCreators(spinnerActionCreator, store.dispatch);*/}
+
+		var spinnerActions = SM.bindActionCreators(spinnerActionCreator, store.dispatch);
+
+		function renderSpinner(){
+			var spinnerValue = store.getState();
+				
+			ReactDOM.render(<Spinner value={spinnerValue} {...spinnerActions} />,
+				document.getElementById('root'));
+		}
+		store.subscribe(renderSpinner);
+		renderSpinner();
+	</script>
+
+</head>
+<body>
+	<h1>Spinner</h1>
+	<hr>
+	<div id="root"></div>
+</body>
+</html>
