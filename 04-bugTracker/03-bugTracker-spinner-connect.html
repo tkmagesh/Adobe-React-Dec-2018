@@ -126,9 +126,11 @@
 
 		class BugTracker extends React.Component{
 			render(){
-				let { model : bugs, addNew, toggle, removeClosed } = this.props;
+				let { model : bugs, addNew, toggle, removeClosed, toggleFilter } = this.props;
 				return(
 					<React.Fragment>
+						<label> Apply Filter : </label>
+						<input type="checkbox" onClick= { () => toggleFilter() } />
 						<BugStats bugs={bugs} />
 						<BugSort />
 						<BugEdit addNew={addNew} />
@@ -172,6 +174,10 @@
 				let closedBugs = bugs.filter(bug => bug.isClosed);
 				let action = { type : 'REMOVE', payload : closedBugs};
 				return action;
+			},
+			toggleFilter(){
+				let action = { type : 'TOGGLE_FILTER'};
+				return action;
 			}
 		};
 
@@ -187,21 +193,30 @@
 		};
 
 		{/* Reducers */}
-		function bugsReducer(currentState = [], action){
+		let defaultBugState = {
+			list : [],
+			filtered : false
+		};
+
+		function bugsReducer(currentState = defaultBugState, action){
 			if (action.type === 'ADD_NEW'){
 				let newBug = action.payload;
 				// currentState.push(newBug); -- no mutation
-				let newState = [...currentState, newBug];
+				let newState = {...currentState, list : [...currentState.list, newBug] };
 				return newState;
 			}
 			if (action.type === 'REPLACE'){
 				let bugToReplace = action.payload;
-				let newState = currentState.map(bug => bug.name === bugToReplace.name ? bugToReplace : bug);
+				let newState = {...currentState, list : currentState.list.map(bug => bug.name === bugToReplace.name ? bugToReplace : bug) };
 				return newState;
 			}
 			if (action.type === 'REMOVE'){
 				let bugsToRemove = action.payload;
-				let newState = currentState.filter(bug => bugsToRemove.indexOf(bug) < 0);
+				let newState = {...currentState, list : currentState.list.filter(bug => bugsToRemove.indexOf(bug) < 0) };
+				return newState;
+			}
+			if (action.type === 'TOGGLE_FILTER'){
+				let newState = {...currentState, filtered : !currentState.filtered};
 				return newState;
 			}
 			return currentState;
@@ -223,7 +238,8 @@
 
 		let ConnectedBugTracker = (function(){
 			function mapStateToBugTrackerProps(storeState){
-				let bugsModel = storeState.bugsData;
+				let { bugsData, spinnerData } = storeState;
+				let bugsModel = bugsData.filtered ? bugsData.list.filter((bug, index) => index % 2 === spinnerData % 2) : bugsData.list;
 				return { model : bugsModel };
 			}
 
@@ -255,7 +271,7 @@
 					mapDispatchToSpinnerProps
 				)(Spinner);
 		})();
-		
+
 		ReactDOM.render(
 			<ReactRedux.Provider store={appStore}>
 				<div>
