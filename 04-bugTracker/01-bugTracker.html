@@ -57,33 +57,29 @@
 
 		
 
-		class BugItem extends React.Component{
-			onBugNameClick = () => {
-				this.props.bug.isClosed = !this.props.bug.isClosed;
-				console.log(this.props.bug);
-			}
-			render(){
-				let { bug } = this.props;
-				return(
-					<li>
-						<span 
-							className="bugname"
-							onClick={this.onBugNameClick}
-							>
-							{JSON.stringify(bug)}
-						</span>
-						<div className="datetime">[Created At]</div>
-					</li>
-				)
-			}
-		}
+		let BugItem = function({ bug, toggle }){
+			let bugStyle = 'bugname ' + (bug.isClosed ? 'closed' : '');
+			return(
+				<li>
+					<span 
+						className={bugStyle}
+						onClick={() => toggle(bug)}
+						>
+						{JSON.stringify(bug)}
+					</span>
+					<div className="datetime">[Created At]</div>
+				</li>
+			)
+		};
+		
+
 		class BugTracker extends React.Component{
 			state = { newBugName : ''};
 			
 			render(){
-				let bugs = this.props.model,
+				let { model : bugs, addNew, toggle, removeClosed } = this.props,
 					bugItems = bugs.map((bug, index) => (
-						<BugItem key={index} bug={bug} />
+						<BugItem key={index} bug={bug} toggle={toggle} />
 					));
 				return(
 					<React.Fragment>
@@ -104,13 +100,13 @@
 						<section className="edit">
 							<label htmlFor="">Bug Name :</label>
 							<input type="text" onChange={(evt) => this.setState({newBugName : evt.target.value})} />
-							<input type="button" value="Add New" onClick={() => this.props.addNew(this.state.newBugName) } />
+							<input type="button" value="Add New" onClick={() => addNew(this.state.newBugName) } />
 						</section>
 						<section className="list">
 							<ol>
 								{bugItems}
 							</ol>
-							<input type="button" value="Remove Closed" />
+							<input type="button" value="Remove Closed" onClick={ () => removeClosed(bugs) }/>
 						</section>
 					</React.Fragment>
 				)
@@ -125,13 +121,34 @@
 				}
 				let action = { type : 'ADD_NEW', payload : newBug}
 				return action;
+			},
+			toggle(bugToToggle){
+				let toggledBug = { ...bugToToggle, isClosed : !bugToToggle.isClosed};
+				let action = { type : 'REPLACE', payload : toggledBug };
+				return action;
+			},
+			removeClosed(bugs){
+				let closedBugs = bugs.filter(bug => bug.isClosed);
+				let action = { type : 'REMOVE', payload : closedBugs};
+				return action;
 			}
 		}
 		function bugsReducer(currentState = [], action){
 			if (action.type === 'ADD_NEW'){
 				let newBug = action.payload;
-				currentState.push(newBug);
-				return currentState;
+				// currentState.push(newBug); -- no mutation
+				let newState = [...currentState, newBug];
+				return newState;
+			}
+			if (action.type === 'REPLACE'){
+				let bugToReplace = action.payload;
+				let newState = currentState.map(bug => bug.name === bugToReplace.name ? bugToReplace : bug);
+				return newState;
+			}
+			if (action.type === 'REMOVE'){
+				let bugsToRemove = action.payload;
+				let newState = currentState.filter(bug => bugsToRemove.indexOf(bug) < 0);
+				return newState;
 			}
 			return currentState;
 		}
