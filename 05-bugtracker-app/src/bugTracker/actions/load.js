@@ -1,6 +1,6 @@
 import bugApi from '../services/bugApi';
 
-function getData(){
+/*function getData(){
 	return [
     {
       "id": 1,
@@ -15,9 +15,7 @@ function getData(){
       "createdAt": "2018-10-24T11:35:33.772Z"
     }
   ];
-}
-
-
+}*/
 export function load(){
 	return function(dispatch){
 		bugApi

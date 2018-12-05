@@ -10,12 +10,13 @@ import BugEdit from './views/bugEdit';
 import * as bugActionCreators from './actions';
 
 class BugTracker extends Component{
+	componentDidMount(){
+		this.props.load();
+	}
 	render(){
-		let { model : bugs, addNew, toggle, removeClosed, toggleFilter, filtered, load } = this.props;
+		let { model : bugs, addNew, toggle, removeClosed, toggleFilter, filtered } = this.props;
 		return(
 			<React.Fragment>
-				<input type="button" value="Load" onClick={load} />
-				<span> | </span>
 				<label> Apply Filter : </label>
 				<input type="checkbox" onChange= { () => toggleFilter() } checked={filtered}/>
 				<BugStats bugs={bugs} />
