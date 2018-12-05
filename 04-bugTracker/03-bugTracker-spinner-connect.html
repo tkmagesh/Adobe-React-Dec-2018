@@ -219,44 +219,54 @@
 		});
 
 		{/* Store */}
-		let store = Redux.createStore(rootReducer);
+		let appStore = Redux.createStore(rootReducer);
+
+		let ConnectedBugTracker = (function(){
+			function mapStateToBugTrackerProps(storeState){
+				let bugsModel = storeState.bugsData;
+				return { model : bugsModel };
+			}
+
+			function mapDispatchToBugTrackerProps(dispatch){
+				let bugActions = Redux.bindActionCreators(bugActionCreators, dispatch);	
+				return bugActions;
+			}
+
+			return ReactRedux.connect(
+					mapStateToBugTrackerProps,
+					mapDispatchToBugTrackerProps
+				)(BugTracker)
+		})();
 
 
-		function mapStateToBugTrackerProps(storeState){
-			let bugsModel = storeState.bugsData;
-			return { model : bugsModel };
-		}
+		let ConnectedSpinner = (function(){
+			function mapStateToSpinnerProps(storeState){
+				var spinnerValue = storeState.spinnerData;
+				return { value : spinnerValue };
+			}
 
-		function mapDispatchToBugTrackerProps(dispatch){
-			let bugActions = Redux.bindActionCreators(bugActionCreators, dispatch);	
-			return bugActions;
-		}
+			function mapDispatchToSpinnerProps(dispatch){
+				var spinnerActions = Redux.bindActionCreators(spinnerActionCreator, dispatch);	
+				return spinnerActions;
+			}
 
-		let ConnectedBugTracker = ReactRedux.connect(
-				mapStateToBugTrackerProps,
-				mapDispatchToBugTrackerProps
-			)(BugTracker)
-
-		{/* Binding Action Creators*/}
+			return ReactRedux.connect(
+					mapStateToSpinnerProps,
+					mapDispatchToSpinnerProps
+				)(Spinner);
+		})();
 		
-		var spinnerActions = Redux.bindActionCreators(spinnerActionCreator, store.dispatch);
-
-
-		function renderApp(){
-			/* Extracting state from the store*/
-			let storeState = store.getState();
-			
-			var spinnerValue = storeState.spinnerData;
-			/* Rendering the UI*/
-			ReactDOM.render(
+		ReactDOM.render(
+			<ReactRedux.Provider store={appStore}>
 				<div>
-					<Spinner value={spinnerValue} {...spinnerActions} />
-					<BugTracker model={bugsModel} {...bugActions} />
-				</div>,
-				document.getElementById('root'));
-		}
-		renderApp();
-		store.subscribe(renderApp);
+					<ConnectedSpinner />
+					<hr/>
+					<ConnectedBugTracker />
+				</div>
+			</ReactRedux.Provider>,
+			document.getElementById('root'));
+	
+		
 	</script>
 </head>
 <body>
